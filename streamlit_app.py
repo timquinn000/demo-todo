@@ -13,15 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import streamlit as st
-from dataclasses import dataclass, field
 import uuid
+from dataclasses import dataclass, field
+
+import streamlit as st
 
 st.set_page_config(page_title="To-do list", page_icon=":memo:")
 
 # Declare alias for st.session_state, just for convenience.
 state = st.session_state
-
 
 @dataclass
 class Todo:
@@ -37,23 +37,18 @@ if "todos" not in state:
         Todo(text="Write a novel"),
     ]
 
-
 def remove_todo(i):
     state.todos.pop(i)
-
 
 def add_todo():
     state.todos.append(Todo(text=state.new_item_text))
     state.new_item_text = ""
 
-
 def check_todo(i, new_value):
     state.todos[i].is_done = new_value
 
-
 def delete_all_checked():
     state.todos = [t for t in state.todos if not t.is_done]
-
 
 with st.container(horizontal_alignment="center"):
     st.title(
