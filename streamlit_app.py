@@ -1,92 +1,95 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024-2025 Streamlit Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+ 
 import uuid
 from dataclasses import dataclass, field
-
+ 
+import pandas as pd
 import requests
 import streamlit as st
-
+ 
 st.set_page_config(page_title="Clean Energy Regulator Data", page_icon=":memo:")
-
+ 
 # Declare alias for st.session_state, just for convenience.
 state = st.session_state
-
-CER_API_URL = "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/RET/dataset/ID0110?select=%2A"
-
+ 
+CER_API_URL = (
+    "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/RET/dataset/ID0110?select=%2A"
+)
+ 
+# Replace with your actual CER API key if required.
+CER_API_KEY = "YOUR_API_KEY_HERE"
+ 
+ 
+@st.cache_data(ttl=300)
 def fetch_cer_data():
     try:
-        resp = requests.get(CER_API_URL, timeout=15)
+        headers = {"Authorization": f"Bearer {CER_API_KEY}"}
+        resp = requests.get(CER_API_URL, headers=headers, timeout=15)
         resp.raise_for_status()
         payload = resp.json()
-        # OData payload generally contains 'value'. fallback to root list.
         records = payload.get("value") if isinstance(payload, dict) else payload
-        if records is None:
+        if not records:
             return []
         return records
     except Exception as e:
         st.error(f"Failed to load CER API data: {e}")
         return []
-
+ 
+ 
 @dataclass
 class Todo:
     text: str
-    is_done = False
+    is_done: bool = False
     uid: uuid.UUID = field(default_factory=uuid.uuid4)
-
-
+ 
+ 
 if "todos" not in state:
     state.todos = [
         Todo(text="Link to first CER data set via API"),
         Todo(text="Link to second CER data set via API"),
         Todo(text="Link to third CER data set via API"),
     ]
-
+ 
+if "cer_records" not in state:
+    state.cer_records = fetch_cer_data()
+ 
+ 
 def remove_todo(i):
     state.todos.pop(i)
-
+ 
+ 
 def add_todo():
     state.todos.append(Todo(text=state.new_item_text))
     state.new_item_text = ""
-
+ 
+ 
 def check_todo(i, new_value):
     state.todos[i].is_done = new_value
-
+ 
+ 
 def delete_all_checked():
     state.todos = [t for t in state.todos if not t.is_done]
-
+ 
+ 
 with st.container(horizontal_alignment="left"):
     st.title(
         ":orange[:material/checklist:] Clean Energy Regulator Data",
         width="content",
         anchor=False,
     )
-
+ 
 with st.expander("CER dataset (ID0110)", expanded=True):
     if st.button("Load / Refresh CER data"):
+        fetch_cer_data.clear()
         state.cer_records = fetch_cer_data()
-
-    if "cer_records" not in state:
-        state.cer_records = fetch_cer_data()
-
+ 
     if state.cer_records:
         st.write(f"Loaded {len(state.cer_records)} records")
-        st.dataframe(state.cer_records)
+        df = pd.json_normalize(state.cer_records)
+        st.dataframe(df)
     else:
         st.info("No CER data available yet. Click Load / Refresh CER data.")
-
+ 
 with st.form(key="new_item_form", border=False):
     with st.container(
         horizontal=True,
@@ -98,13 +101,13 @@ with st.form(key="new_item_form", border=False):
             placeholder="Add to-do item",
             key="new_item_text",
         )
-
+ 
         st.form_submit_button(
             "Add",
             icon=":material/add:",
             on_click=add_todo,
         )
-
+ 
 if state.todos:
     with st.container(gap=None, border=True):
         for i, todo in enumerate(state.todos):
@@ -124,7 +127,7 @@ if state.todos:
                     args=[i],
                     key=f"delete_{i}",
                 )
-
+ 
     with st.container(horizontal=True, horizontal_alignment="center"):
         st.button(
             ":small[Delete all checked]",
@@ -132,6 +135,7 @@ if state.todos:
             type="tertiary",
             on_click=delete_all_checked,
         )
-
+ 
 else:
     st.info("No to-do items. Go fly a kite! :material/family_link:")
+ 
