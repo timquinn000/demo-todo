@@ -50,7 +50,7 @@ def check_todo(i, new_value):
 def delete_all_checked():
     state.todos = [t for t in state.todos if not t.is_done]
 
-with st.container(horizontal_alignment="center"):
+with st.container(horizontal_alignment="left"):
     st.title(
         ":orange[:material/checklist:] To-do list",
         width="content",
@@ -78,7 +78,7 @@ with st.form(key="new_item_form", border=False):
 if state.todos:
     with st.container(gap=None, border=True):
         for i, todo in enumerate(state.todos):
-            with st.container(horizontal=True, vertical_alignment="center"):
+            with st.container(horizontal=True, vertical_alignment=""):
                 st.checkbox(
                     todo.text,
                     value=todo.is_done,
@@ -95,7 +95,7 @@ if state.todos:
                     key=f"delete_{i}",
                 )
 
-    with st.container(horizontal=True, horizontal_alignment="center"):
+    with st.container(horizontal=True, horizontal_alignment="center"): 
         st.button(
             ":small[Delete all checked]",
             icon=":material/delete_forever:",
