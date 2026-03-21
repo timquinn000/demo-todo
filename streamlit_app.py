@@ -149,7 +149,7 @@ if state.todos:
                     type="tertiary",
                     on_click=remove_todo,
                     args=[i],
-                    key=f"delete_{i}",
+                    key=f"delete_{i}", 
                 )
 
     with st.container(horizontal=True, horizontal_alignment="center"):
