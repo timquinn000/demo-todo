@@ -52,7 +52,7 @@ def delete_all_checked():
 
 with st.container(horizontal_alignment="left"):
     st.title(
-        ":orange[:material/checklist:] To-do list",
+        ":orange[:material/checklist:] Clean Energy Regulator Data",
         width="content",
         anchor=False,
     )
