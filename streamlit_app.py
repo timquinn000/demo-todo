@@ -16,12 +16,29 @@
 import uuid
 from dataclasses import dataclass, field
 
+import requests
 import streamlit as st
 
 st.set_page_config(page_title="Clean Energy Regulator Data", page_icon=":memo:")
 
 # Declare alias for st.session_state, just for convenience.
 state = st.session_state
+
+CER_API_URL = "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/RET/dataset/ID0110?select=%2A"
+
+def fetch_cer_data():
+    try:
+        resp = requests.get(CER_API_URL, timeout=15)
+        resp.raise_for_status()
+        payload = resp.json()
+        # OData payload generally contains 'value'. fallback to root list.
+        records = payload.get("value") if isinstance(payload, dict) else payload
+        if records is None:
+            return []
+        return records
+    except Exception as e:
+        st.error(f"Failed to load CER API data: {e}")
+        return []
 
 @dataclass
 class Todo:
@@ -56,6 +73,19 @@ with st.container(horizontal_alignment="left"):
         width="content",
         anchor=False,
     )
+
+with st.expander("CER dataset (ID0110)", expanded=True):
+    if st.button("Load / Refresh CER data"):
+        state.cer_records = fetch_cer_data()
+
+    if "cer_records" not in state:
+        state.cer_records = fetch_cer_data()
+
+    if state.cer_records:
+        st.write(f"Loaded {len(state.cer_records)} records")
+        st.dataframe(state.cer_records)
+    else:
+        st.info("No CER data available yet. Click Load / Refresh CER data.")
 
 with st.form(key="new_item_form", border=False):
     with st.container(
