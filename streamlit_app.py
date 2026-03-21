@@ -6,7 +6,9 @@ from dataclasses import dataclass, field
 import requests
 import streamlit as st
 
-st.set_page_config(page_title="Clean Energy Regulator Data", page_icon=":memo:")
+
+
+st.set_page_config(page_title="Clean Energy Regulator Data", page_icon="emrld_logo.png")
 state = st.session_state
 
 CER_API_URL = "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/NGER/dataset/ID0121"
