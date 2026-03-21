@@ -71,9 +71,9 @@ class Todo:
 
 if "todos" not in state:
     state.todos = [
-        Todo(text="Link to first CER data set via API"),
-        Todo(text="Link to second CER data set via API"),
-        Todo(text="Link to third CER data set via API"),
+        Todo(text=CER_API_URL),
+        #Todo(text="Link to second CER data set via API"),
+        #Todo(text="Link to third CER data set via API"),
     ]
 
 if "cer_records" not in state:
