@@ -78,7 +78,7 @@ with st.form(key="new_item_form", border=False):
 if state.todos:
     with st.container(gap=None, border=True):
         for i, todo in enumerate(state.todos):
-            with st.container(horizontal=True, vertical_alignment=""):
+            with st.container(horizontal=True, vertical_alignment="bottom"):
                 st.checkbox(
                     todo.text,
                     value=todo.is_done,
