@@ -29,3 +29,10 @@ A simple to-do list written in Streamlit.
     ```sh
     $ streamlit run
     ```
+4. ```sh
+
+   $ conda create -n cerapp python=3.10 -y
+   $ conda activate cerapp
+   $ pip install streamlit pandas requests numpy==1.26.4 pyarrow==14.0.2
+
+5. $ streamlit run streamlit_app.py
