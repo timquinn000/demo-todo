@@ -13,7 +13,7 @@ st.set_page_config(page_title="Clean Energy Regulator Data", page_icon=":memo:")
 state = st.session_state
  
 CER_API_URL = (
-    "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/RET/dataset/ID0110?select=%2A"
+    "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/NGER/dataset/ID0121?select%3D%2A"
 )
  
 # Replace with your actual CER API key if required.
