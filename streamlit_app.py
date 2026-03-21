@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 
 import streamlit as st
 
-st.set_page_config(page_title="To-do list", page_icon=":memo:")
+st.set_page_config(page_title="Clean Energy Regulator Data", page_icon=":memo:")
 
 # Declare alias for st.session_state, just for convenience.
 state = st.session_state
@@ -32,9 +32,9 @@ class Todo:
 
 if "todos" not in state:
     state.todos = [
-        Todo(text="Buy milk"),
-        Todo(text="Wash dishes"),
-        Todo(text="Write a novel"),
+        Todo(text="Link to first CER data set via API"),
+        Todo(text="Link to second CER data set via API"),
+        Todo(text="Link to third CER data set via API"),
     ]
 
 def remove_todo(i):
