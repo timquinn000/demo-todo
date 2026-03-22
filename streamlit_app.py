@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import uuid
-from dataclasses import dataclass, field
-
 import requests
+import pandas as pd
 import streamlit as st
 
 st.set_page_config(page_title="Clean Energy Regulator Data", page_icon="emrld_logo.png")
@@ -13,24 +11,11 @@ state = st.session_state
 # ── Available CER APIs ───────────────────────────────────────────
 CER_APIS = {
     "NGER ID0121 - Greenhouse & Energy Info": "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/NGER/dataset/ID0121",
-    "NGER ID0122 - 2016-17 Extract": "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/NGER/dataset/ID0041",  # replace with real URL
-    "RET ID0109 - RET": "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/RET/dataset/ID0109",  # replace with real URL
+    "NGER ID0122 - 2016-17 Extract": "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/NGER/dataset/ID0041",
+    "RET ID0109 - RET": "https://api.cer.gov.au/datahub-public/v1/api/ODataDataset/RET/dataset/ID0109",
 }
 
 CER_API_KEY = "YOUR_REAL_API_KEY"  # only if required
-# ─────────────────────────────────────────────────────────────────
-
-
-def flatten_record(record: dict, parent_key: str = "", sep: str = ".") -> dict:
-    """Recursively flatten a nested dict into a single-level dict."""
-    items = {}
-    for k, v in record.items():
-        new_key = f"{parent_key}{sep}{k}" if parent_key else k
-        if isinstance(v, dict):
-            items.update(flatten_record(v, new_key, sep=sep))
-        else:
-            items[new_key] = v
-    return items
 
 
 @st.cache_data(ttl=300)
@@ -48,7 +33,10 @@ def fetch_cer_data(url: str):
         payload = resp.json()
 
         records = payload.get("value") if isinstance(payload, dict) else payload
-        return records or []
+        if not records:
+            return pd.DataFrame()
+
+        return pd.json_normalize(records)  # ← pandas handles flattening automatically
 
     except requests.exceptions.HTTPError as e:
         st.error(f"HTTP error: {e}")
@@ -56,17 +44,10 @@ def fetch_cer_data(url: str):
             st.code(resp.text)
         except Exception:
             pass
-        return []
+        return pd.DataFrame()
     except Exception as e:
         st.error(f"Failed to load CER API data: {e}")
-        return []
-
-
-def records_to_table(records: list) -> dict:
-    """Convert a list of (possibly nested) dicts into a column-keyed dict for st.table."""
-    flat = [flatten_record(r) if isinstance(r, dict) else {"value": r} for r in records]
-    all_keys = list(dict.fromkeys(k for row in flat for k in row))
-    return {key: [row.get(key, "") for row in flat] for key in all_keys}
+        return pd.DataFrame()
 
 
 # ── Title with logo ──────────────────────────────────────────────
@@ -87,14 +68,14 @@ st.caption(f"URL: {selected_url}")
 with st.expander("CER Dataset", expanded=True):
     if st.button("Load / Refresh CER data"):
         fetch_cer_data.clear()
-        state.cer_records = fetch_cer_data(selected_url)
+        state.cer_df = fetch_cer_data(selected_url)
 
-    if "cer_records" not in state:
-        state.cer_records = fetch_cer_data(selected_url)
+    if "cer_df" not in state:
+        state.cer_df = fetch_cer_data(selected_url)
 
-    if state.cer_records:
-        st.write(f"Loaded {len(state.cer_records)} records from **{selected_label}**")
-        st.dataframe(records_to_table(state.cer_records), use_container_width=True)  # ← updated
+    if not state.cer_df.empty:
+        st.write(f"Loaded **{len(state.cer_df)}** records from **{selected_label}**")
+        st.dataframe(state.cer_df, use_container_width=True)
     else:
         st.info("No CER data available. Click Load / Refresh CER data.")
 # ─────────────────────────────────────────────────────────────────
