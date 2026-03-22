@@ -97,12 +97,14 @@ def delete_all_checked():
     state.todos = [t for t in state.todos if not t.is_done]
 
 
-with st.container(horizontal_alignment="left"):
-    st.title(
-        ":orange[:material/checklist:] Clean Energy Regulator Data",
-        width="content",
-        anchor=False,
-    )
+# ── Title with logo ──────────────────────────────────────────────
+col1, col2 = st.columns([1, 8])
+with col1:
+    st.image("emrld_logo.png", width=60)
+with col2:
+    st.title("Clean Energy Regulator Data", anchor=False)
+# ─────────────────────────────────────────────────────────────────
+
 
 with st.expander("CER dataset (ID0121)", expanded=True):
     if st.button("Load / Refresh CER data"):
