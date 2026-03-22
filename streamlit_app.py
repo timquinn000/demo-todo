@@ -74,11 +74,11 @@ col1, col2 = st.columns([1, 8])
 with col1:
     st.image("emrld_logo.png", width=60)
 with col2:
-    st.title("Clean Energy Regulator Dataset", anchor=False)
+    st.title("Clean Energy Regulator Data", anchor=False)
 # ─────────────────────────────────────────────────────────────────
 
 # ── API Selector ─────────────────────────────────────────────────
-selected_label = st.selectbox("Selected Clean Energy Regulator Dataset", options=list(CER_APIS.keys()))
+selected_label = st.selectbox("Select CER API", options=list(CER_APIS.keys()))
 selected_url = CER_APIS[selected_label]
 st.caption(f"URL: {selected_url}")
 # ─────────────────────────────────────────────────────────────────
@@ -94,7 +94,7 @@ with st.expander("CER Dataset", expanded=True):
 
     if state.cer_records:
         st.write(f"Loaded {len(state.cer_records)} records from **{selected_label}**")
-        st.table(records_to_table(state.cer_records))
+        st.dataframe(records_to_table(state.cer_records), use_container_width=True)  # ← updated
     else:
         st.info("No CER data available. Click Load / Refresh CER data.")
 # ─────────────────────────────────────────────────────────────────
@@ -109,7 +109,7 @@ with st.container(gap=None, border=True):
             st.write(f"**{label}**")
             st.caption(url)
 
-# ── Add new API ──────────────────────────────────────────────────
+
 st.divider()
 with st.form(key="new_api_form", border=False):
     with st.container(horizontal=True, vertical_alignment="bottom"):
