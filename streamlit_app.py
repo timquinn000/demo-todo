@@ -115,7 +115,7 @@ with st.expander("CER dataset (ID0121)", expanded=True):
         st.write(f"Loaded {len(state.cer_records)} records")
         st.table(records_to_table(state.cer_records))
     else:
-        st.info("No CER data available yet. Click Load / Refresh CER data.")
+        st.info("No CER data available. Click Load / Refresh CER data.")
 
 with st.form(key="new_item_form", border=False):
     with st.container(
@@ -125,7 +125,7 @@ with st.form(key="new_item_form", border=False):
         st.text_input(
             "New item",
             label_visibility="collapsed",
-            placeholder="Add to-do item",
+            placeholder="Available CER APIs",
             key="new_item_text",
         )
 
@@ -164,4 +164,4 @@ if state.todos:
         )
 
 else:
-    st.info("No to-do items. Go fly a kite! :material/family_link:")
+    st.info("No other APIs requested. :material/family_link:")
